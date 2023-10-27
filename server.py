@@ -22,7 +22,7 @@ def allowed_file(fname):
 @app.route("/")
 def index():
     return render_template('index.html')
-    
+
 @app.route('/ocr', methods=['POST', 'GET'])
 def detect():
     file = request.files['file']
@@ -37,13 +37,13 @@ def detect():
         img_result = ocr.ocr(img)
         # time-2
         t2 = time.time()
-        
+
         '''
         识别结果将以列表返回在img_result，根据具体需求进行改写
         '''
         results = []
-        for i in range(len(img_result)):
-            results.append(img_result[i][1][0])
+        for item in img_result[0]:
+            results.append(item[1])
 
         return jsonify({
             '服务状态': 'success',

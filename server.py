@@ -27,7 +27,7 @@ def index():
 def detect():
     file = request.files['file']
     # 是否返回坐标
-    return_coord = request.args['return_coord'];
+    return_coord = request.args.get('return_coord')
 
     if file and allowed_file(file.filename):
         ext = file.filename.rsplit('.', 1)[1]

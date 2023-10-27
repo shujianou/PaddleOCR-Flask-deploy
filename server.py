@@ -26,6 +26,9 @@ def index():
 @app.route('/ocr', methods=['POST', 'GET'])
 def detect():
     file = request.files['file']
+    # 是否返回坐标
+    return_coord = request.args['return_coord'];
+
     if file and allowed_file(file.filename):
         ext = file.filename.rsplit('.', 1)[1]
         random_name = '{}.{}'.format(uuid.uuid4().hex, ext)
@@ -41,10 +44,12 @@ def detect():
             point_data = item[0]
             data = dict()
             data['text'] = item[1][0]
-            data['p1'] = point_data[0]
-            data['p2'] = point_data[1]
-            data['p3'] = point_data[2]
-            data['p4'] = point_data[3]
+            if return_coord == '1':
+                data['p1'] = point_data[0]
+                data['p2'] = point_data[1]
+                data['p3'] = point_data[2]
+                data['p4'] = point_data[3]
+
             results.append(data)
 
         return jsonify(results)

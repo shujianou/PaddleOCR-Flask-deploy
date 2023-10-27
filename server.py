@@ -1,27 +1,27 @@
 import os
 import cv2
 import time
-import yaml
 import uuid
 import json
 from datetime import timedelta
 from flask import Flask, render_template, request, jsonify
 from werkzeug.utils import secure_filename
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
-from paddleocr import PaddleOCR,draw_ocr
-from werkzeug import run_simple
+from paddleocr import PaddleOCR, draw_ocr
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(hours=1)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
+
 def allowed_file(fname):
     return '.' in fname and fname.rsplit('.', 1)[1].lower() in ['png', 'jpg', 'jpeg']
+
 
 @app.route("/")
 def index():
     return render_template('index.html')
+
 
 @app.route('/ocr', methods=['POST', 'GET'])
 def detect():
@@ -43,17 +43,21 @@ def detect():
         '''
         results = []
         for item in img_result[0]:
-            results.append(item[1])
+            point_data = item[0]
+            data = dict()
+            data['text'] = item[1][0]
+            data['p1'] = point_data[0]
+            data['p2'] = point_data[1]
+            data['p3'] = point_data[2]
+            data['p4'] = point_data[3]
+            results.append(data)
 
-        return jsonify({
-            '服务状态': 'success',
-            '识别结果': results,
-            '识别时间': '{:.4f}s'.format(t2-t1)
-        })
+        return jsonify(results)
     return jsonify({'服务状态': 'faild'})
 
+
 if __name__ == '__main__':
-    ocr = PaddleOCR(use_angle_cls=True,use_gpu=False) # 查看README的参数说明
+    ocr = PaddleOCR(use_angle_cls=True, use_gpu=False)  # 查看README的参数说明
     app.run(host='127.0.0.1', port=8090, debug=True, threaded=True, processes=1)
     '''
     app.run()中可以接受两个参数，分别是threaded和processes，用于开启线程支持和进程支持。

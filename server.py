@@ -31,13 +31,8 @@ def detect():
         random_name = '{}.{}'.format(uuid.uuid4().hex, ext)
         savepath = os.path.join('caches', secure_filename(random_name))
         file.save(savepath)
-        # time-1
-        t1 = time.time()
         img = cv2.imread(savepath)
         img_result = ocr.ocr(img)
-        # time-2
-        t2 = time.time()
-
         '''
         识别结果将以列表返回在img_result，根据具体需求进行改写
         '''
@@ -58,7 +53,7 @@ def detect():
 
 if __name__ == '__main__':
     ocr = PaddleOCR(use_angle_cls=True, use_gpu=False)  # 查看README的参数说明
-    app.run(host='127.0.0.1', port=8090, debug=True, threaded=True, processes=1)
+    app.run(host='0.0.0.0', port=8090, debug=False, threaded=True, processes=1)
     '''
     app.run()中可以接受两个参数，分别是threaded和processes，用于开启线程支持和进程支持。
     1.threaded : 多线程支持，默认为False，即不开启多线程;

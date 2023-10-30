@@ -23,42 +23,60 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/ocr', methods=['POST', 'GET'])
-def detect():
-    file = request.files['file']
-    # 是否返回坐标
-    return_coord = request.args.get('return_coord')
+default_data = dict()
+default_data['text'] = 'not supported img type'
+default_data['p1'] = '0.0'
+default_data['p2'] = '0.0'
+default_data['p3'] = '0.0'
+default_data['p4'] = '0.0'
 
-    if file and allowed_file(file.filename):
-        ext = file.filename.rsplit('.', 1)[1]
-        random_name = '{}.{}'.format(uuid.uuid4().hex, ext)
-        savepath = os.path.join('caches', secure_filename(random_name))
-        file.save(savepath)
-        img = cv2.imread(savepath)
+ocr = PaddleOCR(use_angle_cls=True, use_gpu=False)  # 查看README的参数说明
+
+
+def do_detect(file=None, return_coord=None):
+    global ocr
+    ext = file.filename.rsplit('.', 1)[1]
+    random_name = '{}.{}'.format(uuid.uuid4().hex, ext)
+    savepath = os.path.join('caches', secure_filename(random_name))
+    file.save(savepath)
+    img = cv2.imread(savepath)
+    data = dict()
+    data['text'] = ''
+    try:
         img_result = ocr.ocr(img)
-        '''
-        识别结果将以列表返回在img_result，根据具体需求进行改写
-        '''
-        results = []
         for item in img_result[0]:
             point_data = item[0]
-            data = dict()
             data['text'] = item[1][0]
             if return_coord == '1':
                 data['p1'] = point_data[0]
                 data['p2'] = point_data[1]
                 data['p3'] = point_data[2]
                 data['p4'] = point_data[3]
+    except:
+        pass
 
-            results.append(data)
+    return data
 
-        return jsonify(results)
-    return jsonify({'服务状态': 'faild'})
+
+@app.route('/ocr', methods=['POST', 'GET'])
+def detect():
+    files = request.files.getlist('files')
+    # 是否返回坐标
+    return_coord = request.args.get('return_coord')
+
+    results = []
+    if files:
+        for file in files:
+            if not allowed_file(file.filename):
+                results.append(default_data)
+                return
+            results.append(do_detect(file=file, return_coord=return_coord))
+
+    return jsonify(results)
 
 
 if __name__ == '__main__':
-    ocr = PaddleOCR(use_angle_cls=True, use_gpu=False)  # 查看README的参数说明
-    app.run(host='0.0.0.0', port=9998, debug=False, threaded=True, processes=1)
+    app.run(host='0.0.0.0', port=9998, debug=True, threaded=True, processes=1)
     '''
     app.run()中可以接受两个参数，分别是threaded和processes，用于开启线程支持和进程支持。
     1.threaded : 多线程支持，默认为False，即不开启多线程;

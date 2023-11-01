@@ -76,7 +76,7 @@ def detect():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=9998, debug=True, threaded=True, processes=1)
+    app.run(host='0.0.0.0', port=9998, debug=False, threaded=True, processes=1)
     '''
     app.run()中可以接受两个参数，分别是threaded和processes，用于开启线程支持和进程支持。
     1.threaded : 多线程支持，默认为False，即不开启多线程;

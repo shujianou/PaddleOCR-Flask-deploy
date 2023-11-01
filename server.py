@@ -30,7 +30,13 @@ default_data['p2'] = '0.0'
 default_data['p3'] = '0.0'
 default_data['p4'] = '0.0'
 
-ocr = PaddleOCR(use_angle_cls=True, use_gpu=False)  # 查看README的参数说明
+ocr = PaddleOCR(use_angle_cls=True,
+                use_gpu=False,
+                # 多进程预测
+                use_mp=True,
+                # 开启的进程数
+                total_process_num=8,
+                )
 
 
 def do_detect(file=None, return_coord=None):

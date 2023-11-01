@@ -38,7 +38,8 @@ ocr = PaddleOCR(use_angle_cls=True,
                 total_process_num=8,
                 )
 
-
+# https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_det_server_infer.tar
+# https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_server_infer.tar
 def do_detect(file=None, return_coord=None):
     global ocr
     ext = file.filename.rsplit('.', 1)[1]
